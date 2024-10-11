@@ -32,6 +32,38 @@ if LANGUAGE.lower() not in ("es", "en", "nl", "de", "ru"):
 	error("LANGUAGE only can be ES/EN/NL/DE")
 	sys.exit(1)
 
+# MODULO DE VISIBILIDAD DE CONTENEDORES
+HIDDEN_CONTAINERS = os.getenv('HIDDEN_CONTAINERS', '')
+ALLOWED_CONTAINERS = os.getenv('ALLOWED_CONTAINERS', '')
+
+hidden_containers = HIDDEN_CONTAINERS.split(',') if HIDDEN_CONTAINERS else []
+allowed_containers = ALLOWED_CONTAINERS.split(',') if ALLOWED_CONTAINERS else []
+
+def filter_containers(containers, hide_container_name=False):
+    if not hidden_containers and not allowed_containers:
+        if hide_container_name:
+            return [container for container in containers if container.name != CONTAINER_NAME]
+        else:
+            return containers
+    elif hidden_containers and not allowed_containers:
+        filtered_containers = [container for container in containers if container.name not in hidden_containers]
+        if hide_container_name:
+            filtered_containers = [container for container in filtered_containers if container.name != CONTAINER_NAME]
+        return filtered_containers
+    elif not hidden_containers and allowed_containers:
+        filtered_containers = [container for container in containers if container.name in allowed_containers]
+        if hide_container_name:
+            filtered_containers = [container for container in filtered_containers if container.name != CONTAINER_NAME]
+        return filtered_containers
+    else:
+        allowed_set = set(allowed_containers)
+        hidden_set = set(hidden_containers)
+        visible_containers = allowed_set - hidden_set
+        filtered_containers = [container for container in containers if container.name in visible_containers]
+        if hide_container_name:
+            filtered_containers = [container for container in filtered_containers if container.name != CONTAINER_NAME]
+        return filtered_containers
+
 # MODULO DE TRADUCCIONES
 def load_locale(locale):
 	with open(f"/app/locale/{locale}.json", "r", encoding="utf-8") as file:
@@ -137,7 +169,8 @@ class DockerManager:
 		else:
 			containers = self.client.containers.list(all=True)
 		status_order = {'running': 0, 'restarting': 1, 'paused': 2, 'exited': 3, 'created': 4, 'dead': 5}
-		sorted_containers = sorted(containers, key=lambda x: (0 if x.name == CONTAINER_NAME else 1, status_order.get(x.status, 6), x.name.lower()))
+		filtered_containers = filter_containers(containers)
+		sorted_containers = sorted(filtered_containers, key=lambda x: (0 if x.name == CONTAINER_NAME else 1, status_order.get(x.status, 6), x.name.lower()))
 		return sorted_containers
 
 	def stop_container(self, container_id, container_name):

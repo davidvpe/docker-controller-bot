@@ -40,6 +40,8 @@ Lleva el control de tus contenedores docker desde un único lugar.
 |TELEGRAM_THREAD |❌| Thread del tema dentro de un supergrupo; valor numérico (2,3,4..). Por defecto 1. Se utiliza en conjunción con la variable TELEGRAM_GROUP |
 |TELEGRAM_NOTIFICATION_CHANNEL |❌| Canal donde se publicarán exclusivamente los cambios de estado de los contenedores |
 |CONTAINER_NAME |✅| Nombre del contenedor, lo que se le ponga en container_name en el docker-compose ha de ir aquí también |
+|HIDDEN_CONTAINERS |❌| Contenedores que no se mostrarán en la lista de contenedores. Por ejemplo: container1,container2. Por defecto se muestran todos |
+|ALLOWED_CONTAINERS |❌| Contenedores que se mostrarán en la lista de contenedores. Por ejemplo: container1,container2. Por defecto se muestran todos |
 |TZ |✅| Timezone (Por ejemplo Europe/Madrid) |
 |CHECK_UPDATES |❌| Si se desea que compruebe actualizaciones. 0 no - 1 sí. Por defecto 1|
 |CHECK_UPDATE_EVERY_HOURS |❌| Tiempo de espera en horas entre chequeo de actualizaciones (4 horas por defecto) | 
